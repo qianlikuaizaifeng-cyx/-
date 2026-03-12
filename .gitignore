@@ -1,0 +1,31 @@
+# 忽略Python生成的文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 不忽略模型文件（因为应用需要它们）
+# *.sav
+
+# 忽略Excel文件
+训练数据.xls
+测试数据.xlsx
+*测试结果.xlsx
+
+# 忽略Word文档
+*.docx
+
+# 忽略系统文件
+Thumbs.db
+.DS_Store
+
+# 忽略IDE文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 忽略环境文件
+.env
+venv/
+env/
