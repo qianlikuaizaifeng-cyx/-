@@ -37,9 +37,6 @@ co_infection = 1 if co_infection == "有" else 0
 basic_disease = st.sidebar.selectbox("基础疾病", ["无", "有"], index=0)
 basic_disease = 1 if basic_disease == "有" else 0
 
-# 模型选择
-model_choice = st.sidebar.selectbox("选择预测模型", ["XGBoost (推荐)", "LightGBM", "RandomForest", "Logistic回归"], index=0)
-
 # 预测按钮
 if st.sidebar.button("预测") and model_loaded:
     # 准备输入数据
@@ -50,35 +47,38 @@ if st.sidebar.button("预测") and model_loaded:
         '基础疾病': [basic_disease]
     })
     
-    # 根据选择的模型进行预测
-    if model_choice == "XGBoost (推荐)":
-        prediction = xgb_model.predict(input_data)[0]
-        model_name = "XGBoost"
-    elif model_choice == "LightGBM":
-        prediction = lgb_model.predict(input_data)[0]
-        model_name = "LightGBM"
-    elif model_choice == "RandomForest":
-        prediction = rf_model.predict(input_data)[0]
-        model_name = "RandomForest"
-    else:  # Logistic回归
-        # 使用用户提供的回归系数
-        def logistic_prediction(row):
-            fever = 1  # 假设发热=1
-            P = (-1.318 * fever) + (1.726 * row['合并感染']) + (0.657 * row['基础疾病']) + (0.867 * row['热峰']) + (0.149 * row['IgG']) - 35.538
-            prob = 1 / (1 + np.exp(-P))
-            return 1 if prob >= 0.5 else 0
-        
-        prediction = logistic_prediction(input_data.iloc[0])
-        model_name = "Logistic回归"
+    # 使用所有模型进行预测
+    predictions = {}
+    
+    # XGBoost模型
+    predictions["XGBoost"] = xgb_model.predict(input_data)[0]
+    
+    # LightGBM模型
+    predictions["LightGBM"] = lgb_model.predict(input_data)[0]
+    
+    # RandomForest模型
+    predictions["RandomForest"] = rf_model.predict(input_data)[0]
+    
+    # Logistic回归模型
+    def logistic_prediction(row):
+        fever = 1  # 假设发热=1
+        P = (-1.318 * fever) + (1.726 * row['合并感染']) + (0.657 * row['基础疾病']) + (0.867 * row['热峰']) + (0.149 * row['IgG']) - 35.538
+        prob = 1 / (1 + np.exp(-P))
+        return 1 if prob >= 0.5 else 0
+    
+    predictions["Logistic回归"] = logistic_prediction(input_data.iloc[0])
     
     # 显示预测结果
     st.subheader("预测结果")
-    st.write(f"使用模型: {model_name}")
     
-    if prediction == 1:
-        st.error("⚠️ 预测结果: 可能感染腺病毒")
-    else:
-        st.success("✅ 预测结果: 未感染腺病毒")
+    # 创建结果表格
+    result_data = []
+    for model_name, prediction in predictions.items():
+        result = "可能感染腺病毒" if prediction == 1 else "未感染腺病毒"
+        result_data.append([model_name, result])
+    
+    result_df = pd.DataFrame(result_data, columns=["模型", "预测结果"])
+    st.dataframe(result_df, use_container_width=True)
     
     # 显示输入参数
     st.subheader("输入参数")
@@ -100,9 +100,8 @@ st.dataframe(performance_df, use_container_width=True)
 # 说明信息
 st.subheader("使用说明")
 st.write("1. 在左侧输入患者的相关信息")
-st.write("2. 选择预测模型（推荐使用XGBoost）")
-st.write("3. 点击'预测'按钮获取预测结果")
-st.write("4. 预测结果仅供参考，最终诊断请以医生判断为准")
+st.write("2. 点击'预测'按钮获取预测结果")
+st.write("3. 预测结果仅供参考，最终诊断请以医生判断为准")
 
 # 免责声明
 st.caption("免责声明: 本工具仅用于辅助诊断，不能替代专业医生的诊断和治疗建议。")
