@@ -12,9 +12,9 @@ st.write("基于机器学习模型的腺病毒感染预测工具")
 
 # 加载模型
 try:
-    rf_model = joblib.load('公式更新后/RandomForest_model.sav')
-    xgb_model = joblib.load('公式更新后/XGBoost_model.sav')
-    lgb_model = joblib.load('公式更新后/LightGBM_model.sav')
+    rf_model = joblib.load('RandomForest_model.sav')
+    xgb_model = joblib.load('XGBoost_model.sav')
+    lgb_model = joblib.load('LightGBM_model.sav')
     model_loaded = True
 except Exception as e:
     st.error(f"模型加载失败: {e}")
@@ -101,4 +101,5 @@ st.write("2. 点击'预测'按钮获取预测结果")
 st.write("3. 预测结果仅供参考，最终诊断请以医生判断为准")
 
 # 免责声明
+
 st.caption("免责声明: 本工具仅用于辅助诊断，不能替代专业医生的诊断和治疗建议。")
