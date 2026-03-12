@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # 忽略模型文件
-*.sav
+# *.sav
 
 # 忽略Excel文件
 训练数据.xls
